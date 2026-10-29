@@ -8,3 +8,4 @@ build after every rebase onto an upstream release.
 | Feature | Spec | Commit |
 | --- | --- | --- |
 | Jettison button on Android | [jettison-button.md](jettison-button.md) | Branch `fix/compact-info-panel-jettison`, merged; offered upstream |
+| Own app ID, name and release signing | [app-id.md](app-id.md) | `t7: build` commit |

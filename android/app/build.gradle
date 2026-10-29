@@ -11,7 +11,7 @@ android {
     }
     ndkVersion "26.3.11579264"
     defaultConfig {
-        applicationId "com.github.thewierdnut.endless_mobile"
+        applicationId "io.github.t7ko_ai_projects.endless_sky"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 63
@@ -68,6 +68,22 @@ android {
             storePassword "android"
             keyAlias "androiddebugkey"
             keyPassword "android"
+        }
+        def localProperties = new Properties()
+        def localPropertiesFile = rootProject.file('local.properties')
+        if (localPropertiesFile.exists())
+            localPropertiesFile.withInputStream { localProperties.load(it) }
+        if (localProperties.getProperty('release.storeFile') != null)
+        {
+            release
+            {
+                storeFile file(localProperties.getProperty('release.storeFile'))
+                storePassword file(localProperties.getProperty('release.storePasswordFile')).text.trim()
+                keyAlias localProperties.getProperty('release.keyAlias')
+                keyPassword storePassword
+            }
+            // Without the key in local.properties, release builds come out unsigned.
+            buildTypes.release.signingConfig signingConfigs.release
         }
     }
 }

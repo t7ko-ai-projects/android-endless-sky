@@ -6,6 +6,8 @@ Each fork feature gets one step: one action and one thing to look at.
 1. **Jettison button** ([spec](jettison-button.md)). With Nerve Gas installed, take off,
    open Ship Info and tap the Nerve Gas row: the bottom button reads **Jettison** and is
    enabled. Tap empty space: it reads **Dump Cargo** (enabled if there is cargo).
+2. **Own app ID** ([spec](app-id.md)). The launcher shows **Endless Sky (t7)**; if
+   endless-mobile is installed too, both icons are there and each opens its own saves.
 
 ## Adding a feature
 
