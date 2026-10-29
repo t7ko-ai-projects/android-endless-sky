@@ -786,11 +786,15 @@ interface "info panel"
 	button D "Disown"
 		from -760 -50 to -670 0 bottom right
 
-	visible if "show dump"
-	active if "enable dump"
+	visible if "show dump/jettison button"
+	active if "enable dump/jettison"
 	sprite "ui/wide button"
 		from -760 -50 to -650 0 bottom right
+	visible if "show dump"
 	button c "Dump _Cargo"
+		from -760 -50 to -650 0 bottom right
+	visible if "show jettison"
+	button j "_Jettison"
 		from -760 -50 to -650 0 bottom right
 	active
 
