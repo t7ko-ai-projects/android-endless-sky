@@ -8,6 +8,9 @@ Each fork feature gets one step: one action and one thing to look at.
    enabled. Tap empty space: it reads **Dump Cargo** (enabled if there is cargo).
 2. **Own app ID** ([spec](app-id.md)). The launcher shows **Endless Sky (t7)**; if
    endless-mobile is installed too, both icons are there and each opens its own saves.
+3. **Ship Info scrolling** ([spec](info-panel-scrolling.md)). On a ship with many
+   outfits, open Ship Info and drag up inside the outfits box: the list scrolls and its
+   last outfits come into view. Drag inside the stats box: it scrolls too.
 
 ## Adding a feature
 
