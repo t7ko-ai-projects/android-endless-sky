@@ -20,6 +20,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "ClickZone.h"
 #include "InfoPanelState.h"
 #include "Point.h"
+#include "Rectangle.h"
 #include "ShipInfoDisplay.h"
 
 #include <map>
@@ -31,7 +32,6 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 class Color;
 class Outfit;
 class PlayerInfo;
-class Rectangle;
 
 
 
@@ -55,6 +55,7 @@ protected:
 	virtual bool Hover(int x, int y) override;
 	virtual bool Drag(double dx, double dy) override;
 	virtual bool Release(int x, int y, MouseButton button) override;
+	virtual bool Scroll(double dx, double dy) override;
 
 
 private:
@@ -66,7 +67,9 @@ private:
 	void DrawShipStats(const Rectangle &bounds);
 	void DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds);
 	void DrawWeapons(const Rectangle &bounds);
-	void DrawCargo(const Rectangle &bounds);
+	// Returns the height of what was drawn. If "visible" is given, the whole list is drawn
+	// (it scrolls with the outfits) and only rows inside "visible" can be clicked.
+	double DrawCargo(const Rectangle &bounds, const Rectangle *visible = nullptr);
 
 	// Helper functions.
 	void DrawLine(const Point &from, const Point &to, const Color &color) const;
@@ -110,4 +113,20 @@ private:
 	std::string selectedCommodity;
 	const Outfit *selectedPlunder = nullptr;
 	const Outfit *selectedOutfit = nullptr;
+
+	// Vertical scrolling of the stats and outfits boxes, for when their contents
+	// don't fit (e.g. on small screens).
+	struct ScrollBox {
+		Rectangle bounds;
+		double contentHeight = 0.;
+		double scroll = 0.;
+
+		bool CanScroll() const;
+		void ScrollBy(double dy);
+	};
+	ScrollBox statsBox;
+	ScrollBox outfitsBox;
+	ScrollBox *draggingBox = nullptr;
+	// Whether the cargo is listed in the outfits box (when that is one column wide).
+	bool cargoInOutfits = false;
 };

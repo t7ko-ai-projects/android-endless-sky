@@ -721,7 +721,7 @@ interface "info panel"
 		# from -500 -240 to -250 230
 	box "outfits"
 		from 250 40 top left
-		to 500 0 bottom left
+		to 500 -50 bottom left
 	box "weapons"
 		from 500 40 top left
 		to -50 -50 bottom right

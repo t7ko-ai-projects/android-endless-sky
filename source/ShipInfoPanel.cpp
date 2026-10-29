@@ -26,6 +26,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "text/FontSet.h"
 #include "text/Format.h"
 #include "GameData.h"
+#include "GameWindow.h"
 #include "Information.h"
 #include "Interface.h"
 #include "shader/LineShader.h"
@@ -35,7 +36,9 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "shader/OutlineShader.h"
 #include "PlayerInfo.h"
 #include "PlayerInfoPanel.h"
+#include "Preferences.h"
 #include "Rectangle.h"
+#include "Screen.h"
 #include "Ship.h"
 #include "ShipNameDialogPanel.h"
 #include "image/Sprite.h"
@@ -44,8 +47,11 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "text/Truncate.h"
 #include "UI.h"
 
+#include "opengl.h"
+
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <ranges>
 
 using namespace std;
@@ -53,6 +59,24 @@ using namespace std;
 namespace {
 	constexpr double WIDTH = 250.;
 	constexpr int COLUMN_WIDTH = static_cast<int>(WIDTH) - 20;
+
+	// Restricts drawing to the given rectangle (in screen coordinates) while in scope.
+	class ClipGuard {
+	public:
+		explicit ClipGuard(const Rectangle &bounds)
+		{
+			const double scaleX = GameWindow::DrawWidth() / static_cast<double>(Screen::Width());
+			const double scaleY = GameWindow::DrawHeight() / static_cast<double>(Screen::Height());
+			const double left = (bounds.Left() + Screen::Width() / 2.) * scaleX;
+			const double bottom = (Screen::Height() / 2. - bounds.Bottom()) * scaleY;
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(lround(left), lround(bottom), lround(bounds.Width() * scaleX), lround(bounds.Height() * scaleY));
+		}
+		~ClipGuard()
+		{
+			glDisable(GL_SCISSOR_TEST);
+		}
+	};
 }
 
 
@@ -143,7 +167,8 @@ void ShipInfoPanel::Draw()
 	DrawShipStats(infoPanelUi->GetBox("stats"));
 	DrawOutfits(infoPanelUi->GetBox("outfits"), cargoBounds);
 	DrawWeapons(infoPanelUi->GetBox("weapons"));
-	DrawCargo(cargoBounds);
+	if(!cargoInOutfits)
+		DrawCargo(cargoBounds);
 
 	// If the player hovers their mouse over a ship attribute, show its tooltip.
 	info.DrawTooltips();
@@ -310,13 +335,17 @@ bool ShipInfoPanel::Click(int x, int y, MouseButton button, int /* clicks */)
 		return true;
 
 	draggingIndex = -1;
+	Point point(x, y);
+	draggingBox = nullptr;
+	for(ScrollBox *box : {&statsBox, &outfitsBox})
+		if(box->CanScroll() && box->bounds.Contains(point))
+			draggingBox = box;
 	if(panelState.CanEdit() && hoverIndex >= 0 && (*shipIt)->GetSystem() == player.GetSystem() && !(*shipIt)->IsDisabled())
 		draggingIndex = hoverIndex;
 
 	selectedCommodity.clear();
 	selectedPlunder = nullptr;
 	selectedOutfit = nullptr;
-	Point point(x, y);
 	for(const auto &zone : commodityZones)
 		if(zone.Contains(point))
 			selectedCommodity = zone.Value();
@@ -343,6 +372,8 @@ bool ShipInfoPanel::Hover(int x, int y)
 
 bool ShipInfoPanel::Drag(double dx, double dy)
 {
+	if(draggingBox)
+		draggingBox->ScrollBy(-dy);
 	return Hover(hoverPoint + Point(dx, dy));
 }
 
@@ -357,7 +388,21 @@ bool ShipInfoPanel::Release(int /* x */, int /* y */, MouseButton button)
 		(*shipIt)->GetArmament().Swap(hoverIndex, draggingIndex);
 
 	draggingIndex = -1;
+	draggingBox = nullptr;
 	return true;
+}
+
+
+
+bool ShipInfoPanel::Scroll(double /* dx */, double dy)
+{
+	for(ScrollBox *box : {&statsBox, &outfitsBox})
+		if(box->CanScroll() && box->bounds.Contains(hoverPoint))
+		{
+			box->ScrollBy(-dy * Preferences::ScrollSpeed());
+			return true;
+		}
+	return false;
 }
 
 
@@ -409,18 +454,24 @@ void ShipInfoPanel::DrawShipStats(const Rectangle &bounds)
 	const Color &backColor = *GameData::Colors().Get("faint");
 	const Ship &ship = **shipIt;
 
+	statsBox.bounds = bounds;
+	statsBox.ScrollBy(0.);
+	ClipGuard clip(bounds);
+
 	// Two columns of opposite alignment are used to simulate a single visual column.
 	Table table;
 	table.AddColumn(0, {COLUMN_WIDTH, Alignment::LEFT});
 	table.AddColumn(COLUMN_WIDTH, {COLUMN_WIDTH, Alignment::RIGHT, Truncate::MIDDLE});
 	table.SetUnderline(0, COLUMN_WIDTH);
-	table.DrawAt(bounds.TopLeft() + Point(10., 8.));
+	table.DrawAt(bounds.TopLeft() + Point(10., 8. - statsBox.scroll));
 
 	if(table.GetRowBounds().Contains(hoverPoint))
 		table.DrawHighlight(backColor);
 	table.DrawTruncatedPair("ship:", dim, ship.GivenName(), bright, Truncate::MIDDLE, true);
 
 	info.DrawAttributes(table.GetRowBounds().TopLeft() - Point(10., 10.));
+	statsBox.contentHeight = table.GetRowBounds().Top() - 10. + statsBox.scroll - bounds.Top()
+		+ info.GetAttributesHeight(false);
 }
 
 
@@ -437,12 +488,19 @@ void ShipInfoPanel::DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds)
 	const Color &backColor = *GameData::Colors().Get("faint");
 	const Ship &ship = **shipIt;
 
+	// If only one column fits, list every outfit in it and let it scroll,
+	// instead of moving on to further columns.
+	const bool oneColumn = bounds.Width() < 2. * WIDTH;
+	outfitsBox.bounds = bounds;
+	outfitsBox.ScrollBy(0.);
+	ClipGuard clip(bounds);
+
 	// Two columns of opposite alignment are used to simulate a single visual column.
 	Table table;
 	table.AddColumn(0, {COLUMN_WIDTH, Alignment::LEFT});
 	table.AddColumn(COLUMN_WIDTH, {COLUMN_WIDTH, Alignment::RIGHT});
 	table.SetUnderline(0, COLUMN_WIDTH);
-	Point start = bounds.TopLeft() + Point(10., 8.);
+	Point start = bounds.TopLeft() + Point(10., 8. - outfitsBox.scroll);
 	table.DrawAt(start);
 
 	// Draw the outfits in the same order used in the outfitter.
@@ -463,7 +521,7 @@ void ShipInfoPanel::DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds)
 
 		// Skip to the next column if there is no space for this category label
 		// plus at least one outfit.
-		if(table.GetRowBounds().Bottom() + 40. > bounds.Bottom())
+		if(!oneColumn && table.GetRowBounds().Bottom() + 40. > bounds.Bottom())
 		{
 			start += Point(WIDTH, 0.);
 			if(start.X() + COLUMN_WIDTH > bounds.Right())
@@ -477,7 +535,7 @@ void ShipInfoPanel::DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds)
 		for(const Outfit *outfit : validOutfits)
 		{
 			// Check if we've gone below the bottom of the bounds.
-			if(table.GetRowBounds().Bottom() > bounds.Bottom())
+			if(!oneColumn && table.GetRowBounds().Bottom() > bounds.Bottom())
 			{
 				start += Point(WIDTH, 0.);
 				if(start.X() + COLUMN_WIDTH > bounds.Right())
@@ -487,7 +545,9 @@ void ShipInfoPanel::DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds)
 				table.Advance();
 			}
 
-			outfitZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), outfit);
+			// Rows scrolled out of view can't be clicked.
+			if(bounds.Contains(table.GetCenterPoint()))
+				outfitZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), outfit);
 			if(outfit == selectedOutfit || outfit == hoverOutfit)
 				table.DrawHighlight(backColor);
 
@@ -499,8 +559,20 @@ void ShipInfoPanel::DrawOutfits(const Rectangle &bounds, Rectangle &cargoBounds)
 		table.DrawGap(10.);
 	}
 
+	// In one column, the cargo follows the outfits and scrolls with them.
+	cargoInOutfits = oneColumn;
+	if(oneColumn)
+	{
+		const double cargoTop = table.GetPoint().Y() - 8.;
+		const double cargoHeight = DrawCargo(Rectangle::WithCorners(Point(bounds.Left(), cargoTop),
+			Point(bounds.Right(), cargoTop)), &bounds);
+		outfitsBox.contentHeight = cargoTop + cargoHeight + outfitsBox.scroll - bounds.Top();
+	}
+	else
+		outfitsBox.contentHeight = 0.;
+
 	// Check if this information spilled over into the cargo column.
-	if(table.GetPoint().X() >= cargoBounds.Left())
+	if(!oneColumn && table.GetPoint().X() >= cargoBounds.Left())
 	{
 		double startY = table.GetRowBounds().Top() - 8.;
 		cargoBounds = Rectangle::WithCorners(
@@ -635,7 +707,7 @@ void ShipInfoPanel::DrawWeapons(const Rectangle &bounds)
 
 
 
-void ShipInfoPanel::DrawCargo(const Rectangle &bounds)
+double ShipInfoPanel::DrawCargo(const Rectangle &bounds, const Rectangle *visible)
 {
 	const Color &dim = *GameData::Colors().Get("medium");
 	const Color &bright = *GameData::Colors().Get("bright");
@@ -651,7 +723,8 @@ void ShipInfoPanel::DrawCargo(const Rectangle &bounds)
 	table.SetUnderline(-5, COLUMN_WIDTH + 5);
 	table.DrawAt(bounds.TopLeft() + Point(10., 8.));
 
-	double endY = bounds.Bottom() - 30. * (cargo.Passengers() != 0);
+	double endY = visible ? numeric_limits<double>::max() : bounds.Bottom() - 30. * (cargo.Passengers() != 0);
+	auto isVisible = [visible](const Point &point) { return !visible || visible->Contains(point); };
 	bool hasSpace = (table.GetRowBounds().Bottom() < endY);
 	if((cargo.CommoditiesSize() || cargo.HasOutfits() || cargo.MissionCargoSize()) && hasSpace)
 	{
@@ -666,7 +739,8 @@ void ShipInfoPanel::DrawCargo(const Rectangle &bounds)
 			if(!it.second)
 				continue;
 
-			commodityZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), it.first);
+			if(isVisible(table.GetCenterPoint()))
+				commodityZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), it.first);
 			if(it.first == selectedCommodity || it.first == hoverCommodity)
 				table.DrawHighlight(backColor);
 
@@ -689,7 +763,8 @@ void ShipInfoPanel::DrawCargo(const Rectangle &bounds)
 			if(!it.second)
 				continue;
 
-			plunderZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), it.first);
+			if(isVisible(table.GetCenterPoint()))
+				plunderZones.emplace_back(table.GetCenterPoint(), table.GetRowSize(), it.first);
 			if(it.first == selectedPlunder || it.first == hoverPlunder)
 				table.DrawHighlight(backColor);
 
@@ -728,10 +803,12 @@ void ShipInfoPanel::DrawCargo(const Rectangle &bounds)
 	}
 	if(cargo.Passengers() && endY >= bounds.Top())
 	{
-		table.DrawAt(Point(bounds.Left(), endY) + Point(10., 8.));
+		if(!visible)
+			table.DrawAt(Point(bounds.Left(), endY) + Point(10., 8.));
 		table.Draw("passengers:", dim);
 		table.Draw(to_string(cargo.Passengers()), bright);
 	}
+	return table.GetPoint().Y() - bounds.Top();
 }
 
 
@@ -936,4 +1013,18 @@ void ShipInfoPanel::Disown()
 	player.DisownShip(ship->get());
 	panelState.Disown(ship);
 	UpdateInfo();
+}
+
+
+
+bool ShipInfoPanel::ScrollBox::CanScroll() const
+{
+	return contentHeight > bounds.Height();
+}
+
+
+
+void ShipInfoPanel::ScrollBox::ScrollBy(double dy)
+{
+	scroll = clamp(scroll + dy, 0., max(0., contentHeight - bounds.Height()));
 }
