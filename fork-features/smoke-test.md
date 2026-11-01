@@ -19,6 +19,8 @@ Each fork feature gets one step: one action and one thing to look at.
    light) or get it disabled (red light).
 6. **Shop scrollbars** ([spec](shop-scrollbar.md)). In the outfitter, drag the scrollbars
    with a finger: they are thicker and easy to grab.
+7. **Full table in Ship Info** ([spec](ship-info-full-table.md)). Info → ship tab: the
+   energy/heat table has thrusting, turning and net-change rows, like the outfitter.
 
 ## Adding a feature
 

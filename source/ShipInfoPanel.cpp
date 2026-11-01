@@ -416,7 +416,7 @@ void ShipInfoPanel::UpdateInfo()
 		return;
 
 	const Ship &ship = **shipIt;
-	info.Update(ship, player);
+	info.Update(ship, player, false, true, true);
 	if(player.Flagship() && ship.GetSystem() == player.GetSystem() && &ship != player.Flagship())
 	{
 		player.Flagship()->SetTargetShip(*shipIt);
