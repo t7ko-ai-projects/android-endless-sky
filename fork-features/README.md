@@ -10,3 +10,4 @@ build after every rebase onto an upstream release.
 | Jettison button on Android | [jettison-button.md](jettison-button.md) | Branch `fix/compact-info-panel-jettison`, merged; offered upstream |
 | Own app ID, name and release signing | [app-id.md](app-id.md) | `t7: build` commit |
 | Scrolling stats and outfits in Ship Info | [info-panel-scrolling.md](info-panel-scrolling.md) | Branch `fix/info-panel-scrolling`, merged; to offer upstream |
+| Nerve Gas: drop on capture, never pick up | [nerve-gas-auto-drop.md](nerve-gas-auto-drop.md) | `t7: feat` commit |

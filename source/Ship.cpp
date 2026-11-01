@@ -4427,6 +4427,9 @@ bool Ship::CanPickUp(const Flotsam &flotsam) const
 		return false;
 	if(government == flotsam.SourceGovernment() && (!personality.Harvests() || personality.IsAppeasing()))
 		return false;
+	// t7: the player's ships never pick up Nerve Gas.
+	if(IsYours() && flotsam.OutfitType() && flotsam.OutfitType() == GameData::Outfits().Find("Nerve Gas"))
+		return false;
 	return cargo.Free() >= flotsam.UnitSize();
 }
 

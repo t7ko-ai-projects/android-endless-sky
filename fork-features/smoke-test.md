@@ -11,6 +11,9 @@ Each fork feature gets one step: one action and one thing to look at.
 3. **Ship Info scrolling** ([spec](info-panel-scrolling.md)). On a ship with many
    outfits, open Ship Info and drag up inside the outfits box: the list scrolls and its
    last outfits come into view. Drag inside the stats box: it scrolls too.
+4. **Nerve Gas on capture and pickup** ([spec](nerve-gas-auto-drop.md)). Capture a ship that
+   carries Nerve Gas: the boarding messages say it was jettisoned and the new ship has none.
+   Fly over the dropped boxes: your ships don't collect them.
 
 ## Adding a feature
 

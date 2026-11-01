@@ -29,6 +29,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Government.h"
 #include "Information.h"
 #include "Interface.h"
+#include "Outfit.h"
 #include "PlayerInfo.h"
 #include "Preferences.h"
 #include "Random.h"
@@ -512,6 +513,18 @@ bool BoardingPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &command,
 						AddMessage(Format::Number(fuelTransferred, 0) + " fuel has been transferred.");
 				}
 				player.CaptureShip(victim);
+				// t7: jettison the captured ship's Nerve Gas, installed and in cargo.
+				if(const Outfit *nerveGas = GameData::Outfits().Find("Nerve Gas"))
+				{
+					const int installed = victim->OutfitCount(nerveGas);
+					if(installed)
+						victim->JettisonInstalled(nerveGas, installed);
+					const int inCargo = victim->Cargo().Get(nerveGas);
+					if(inCargo)
+						victim->Jettison(nerveGas, inCargo);
+					if(installed + inCargo)
+						AddMessage("Jettisoned " + to_string(installed + inCargo) + " Nerve Gas.");
+				}
 				for(const Ship::Bay &bay : victim->Bays())
 					if(bay.ship)
 					{
