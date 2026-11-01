@@ -22,10 +22,6 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 using namespace std;
 
-namespace {
-	// Additional distance the scrollbar's tab can be selected from.
-	constexpr float SCROLLBAR_MOUSE_ADDITIONAL_RANGE = 5.;
-}
 
 
 
@@ -101,8 +97,8 @@ bool ScrollBar::Hover(int x, int y)
 
 	Point p(x, y);
 
-	highlighted = LineSDF(a, b, p) <= tabWidth + SCROLLBAR_MOUSE_ADDITIONAL_RANGE;
-	innerHighlighted = LineSDF(from, to, p) <= lineWidth + SCROLLBAR_MOUSE_ADDITIONAL_RANGE;
+	highlighted = LineSDF(a, b, p) <= tabWidth + grabRange;
+	innerHighlighted = LineSDF(from, to, p) <= lineWidth + grabRange;
 
 	return false;
 }

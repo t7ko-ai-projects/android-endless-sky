@@ -76,6 +76,8 @@ public:
 	Color innerColor;
 	bool highlighted = false;
 	bool innerHighlighted = false;
+	// t7: extra distance around the bar that still grabs it.
+	float grabRange = 5.f;
 };
 
 

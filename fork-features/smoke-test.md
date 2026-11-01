@@ -17,7 +17,8 @@ Each fork feature gets one step: one action and one thing to look at.
 5. **Escort counts** ([spec](escort-counts.md)). Info → player tab shows "active escorts".
    In flight, `N/M` is above the escort icons; let an escort's shields drop to 30% (yellow
    light) or get it disabled (red light).
-
+6. **Shop scrollbars** ([spec](shop-scrollbar.md)). In the outfitter, drag the scrollbars
+   with a finger: they are thicker and easy to grab.
 
 ## Adding a feature
 

@@ -103,6 +103,14 @@ ShopPanel::ShopPanel(PlayerInfo &player, bool isOutfitter)
 	SetIsFullScreen(true);
 	SetInterruptible(false);
 
+	// t7: wider scrollbars that are easier to grab on a touch screen.
+	for(ScrollBar *scrollbar : {&mainScrollbar, &sidebarScrollbar, &infobarScrollbar})
+	{
+		scrollbar->tabWidth = 6.f;
+		scrollbar->lineWidth = 4.f;
+		scrollbar->grabRange = 20.f;
+	}
+
 	selectedQuantity = make_shared<Dropdown>();
 	selectedQuantity->SetAlign(Dropdown::LEFT);
 	selectedQuantity->SetFontSize(14);

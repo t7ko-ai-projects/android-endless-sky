@@ -12,3 +12,4 @@ build after every rebase onto an upstream release.
 | Scrolling stats and outfits in Ship Info | [info-panel-scrolling.md](info-panel-scrolling.md) | Branch `fix/info-panel-scrolling`, merged; to offer upstream |
 | Nerve Gas: drop on capture, never pick up | [nerve-gas-auto-drop.md](nerve-gas-auto-drop.md) | `t7: feat` commit |
 | Escort counts and warning light | [escort-counts.md](escort-counts.md) | `t7: feat` commit |
+| Wider shop scrollbars | [shop-scrollbar.md](shop-scrollbar.md) | `t7: feat` commit |
