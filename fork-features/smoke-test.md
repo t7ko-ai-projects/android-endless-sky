@@ -14,6 +14,10 @@ Each fork feature gets one step: one action and one thing to look at.
 4. **Nerve Gas on capture and pickup** ([spec](nerve-gas-auto-drop.md)). Capture a ship that
    carries Nerve Gas: the boarding messages say it was jettisoned and the new ship has none.
    Fly over the dropped boxes: your ships don't collect them.
+5. **Escort counts** ([spec](escort-counts.md)). Info → player tab shows "active escorts".
+   In flight, `N/M` is above the escort icons; let an escort's shields drop to 30% (yellow
+   light) or get it disabled (red light).
+
 
 ## Adding a feature
 

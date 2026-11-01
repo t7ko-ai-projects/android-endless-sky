@@ -643,6 +643,19 @@ void PlayerInfoPanel::DrawPlayer(const Rectangle &bounds)
 	table.DrawTruncatedPair("time played:", dim, Format::PlayTime(player.GetPlayTime()),
 		bright, Truncate::MIDDLE, true);
 
+	// t7: active escorts (not parked or destroyed, flagship excluded), and how many are here.
+	int activeEscorts = 0;
+	int escortsHere = 0;
+	for(const shared_ptr<Ship> &ship : player.Ships())
+		if(ship != player.FlagshipPtr() && !ship->IsParked() && !ship->IsDestroyed())
+		{
+			++activeEscorts;
+			if(ship->GetSystem() == player.GetSystem())
+				++escortsHere;
+		}
+	table.DrawTruncatedPair("active escorts:", dim,
+		to_string(activeEscorts) + " (" + to_string(escortsHere) + " here)", bright, Truncate::MIDDLE, true);
+
 	// Determine the player's combat rating.
 	int combatExperience = player.Conditions().Get("combat rating");
 	int combatLevel = log(max<int64_t>(1, combatExperience));

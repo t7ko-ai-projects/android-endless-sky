@@ -659,14 +659,26 @@ void Engine::Step(bool isActive)
 	set<shared_ptr<Ship>> selected;
 	for(const weak_ptr<Ship> &ptr : player.SelectedEscorts())
 		selected.insert(ptr.lock());
+	int fleetTotal = 0;
+	int fleetHere = 0;
+	int fleetAlert = 0;
 	for(const shared_ptr<Ship> &escort : player.Ships())
 		if(!escort->IsParked() && escort != flagship && !escort->IsDestroyed())
 		{
+			// t7: counts and warning light for the escort display.
+			++fleetTotal;
+			if(escort->GetSystem() == currentSystem)
+				++fleetHere;
+			if(escort->IsDisabled())
+				fleetAlert = 2;
+			else if(escort->ShieldFraction() <= .3)
+				fleetAlert = max(fleetAlert, 1);
 			// Check if this escort is selected.
 			bool isSelected = selected.contains(escort);
 			const System *system = escort->GetSystem();
 			escorts.Add(escort, system == currentSystem, system && player.KnowsName(*system), fleetIsJumping, isSelected);
 		}
+	escorts.SetFleetSummary(fleetTotal, fleetHere, fleetAlert, (step / 30) % 2 == 0);
 
 	statuses.clear();
 	missileLabels.clear();

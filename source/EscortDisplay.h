@@ -35,6 +35,8 @@ class EscortDisplay {
 public:
 	void Clear();
 	void Add(const std::shared_ptr<Ship> &ship, bool isHere, bool systemNameKnown, bool fleetIsJumping, bool isSelected);
+	// t7: the counts and warning light drawn above the icons. Alert: 0 none, 1 low shields, 2 disabled.
+	void SetFleetSummary(int total, int here, int alert, bool blinkOn);
 
 	// Draw as many escort icons as will fit in the given bounding box.
 	void Draw(const Rectangle &bounds) const;
@@ -84,4 +86,9 @@ private:
 	const Interface *element = nullptr;
 	int basicHeight = 0;
 	int systemLabelHeight = 0;
+
+	int fleetTotal = 0;
+	int fleetHere = 0;
+	int fleetAlert = 0;
+	bool blinkOn = false;
 };

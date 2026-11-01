@@ -23,7 +23,10 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Point.h"
 #include "Rectangle.h"
 #include "Ship.h"
+#include "shader/RingShader.h"
 #include "image/Sprite.h"
+#include "text/Font.h"
+#include "text/FontSet.h"
 #include "System.h"
 
 #include <algorithm>
@@ -79,6 +82,7 @@ void EscortDisplay::Draw(const Rectangle &bounds) const
 	//	const Point iconZoneOffset = element->GetBox("icon click zone").Center();
 	const Point iconZoneSize = { element->GetValue("width"), element->GetValue("basic height") };
 	bool isFirstIcon = true;
+	double firstColumnTop = bounds.Bottom();
 	for(const Icon &escort : icons)
 	{
 		if(!escort.sprite)
@@ -152,8 +156,34 @@ void EscortDisplay::Draw(const Rectangle &bounds) const
 
 		element->Draw(info);
 
+		if(corner.X() == bounds.Left())
+			firstColumnTop = corner.Y();
 		isFirstIcon = false;
 	}
+
+	// t7: active escorts / of them in this system, and a blinking light when one is in trouble.
+	if(fleetTotal)
+	{
+		const Font &font = FontSet::Get(14);
+		const Point textPoint(bounds.Left() + 5., firstColumnTop - font.Height() - 5.);
+		font.Draw(to_string(fleetTotal) + "/" + to_string(fleetHere), textPoint, *colors.Get("medium"));
+		if(fleetAlert && blinkOn)
+		{
+			const Color &lightColor = (fleetAlert == 2) ? Color(1.f, 0.f, 0.f, 1.f) : Color(1.f, .85f, 0.f, 1.f);
+			const double x = textPoint.X() + font.Width(to_string(fleetTotal) + "/" + to_string(fleetHere)) + 10.;
+			RingShader::Draw(Point(x, textPoint.Y() + font.Height() / 2.), 6.f, 0.f, lightColor);
+		}
+	}
+}
+
+
+
+void EscortDisplay::SetFleetSummary(int total, int here, int alert, bool blinkOn)
+{
+	fleetTotal = total;
+	fleetHere = here;
+	fleetAlert = alert;
+	this->blinkOn = blinkOn;
 }
 
 
