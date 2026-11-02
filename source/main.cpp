@@ -503,6 +503,13 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 				menuPanels.Push(shared_ptr<Panel>(
 					new MenuPanel(player, gamePanels)));
 			}
+			else if(event.type == SDL_APP_WILLENTERBACKGROUND)
+			{
+				// t7: Android may kill the app while it is in the background, so save
+				// now if landed, the same way quitting does.
+				if(player.GetPlanet() && !player.IsDead() && gamePanels.CanSave())
+					player.Save();
+			}
 			else if(event.type == SDL_QUIT)
 				menuPanels.Quit();
 #ifdef ES_USE_SDL3

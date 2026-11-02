@@ -23,6 +23,9 @@ Each fork feature gets one step: one action and one thing to look at.
    energy/heat table has thrusting, turning and net-change rows, like the outfitter.
 8. **Save button** ([spec](save-button.md)). Land, buy something, tap **Save**: "Game
    saved." Quit to the main menu and load the main save: the purchase is there.
+9. **Background save** ([spec](background-save.md)). Land, buy something, switch to another
+   app, then force-stop Endless Sky (t7) in Android settings. Start it and load: the
+   purchase is there.
 
 ## Adding a feature
 
