@@ -14,3 +14,4 @@ build after every rebase onto an upstream release.
 | Escort counts and warning light | [escort-counts.md](escort-counts.md) | `t7: feat` commit |
 | Wider shop scrollbars | [shop-scrollbar.md](shop-scrollbar.md) | `t7: feat` commit |
 | Full energy/heat table in Ship Info | [ship-info-full-table.md](ship-info-full-table.md) | `t7: feat` commit |
+| Save button when landed | [save-button.md](save-button.md) | `t7: feat` commit |

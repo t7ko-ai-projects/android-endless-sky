@@ -286,6 +286,14 @@ bool PlanetPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &command, b
 		requestedLaunch = true;
 		return true;
 	}
+	else if(key == 'v')
+	{
+		// t7: save the game now.
+		UI::PlaySound(UI::UISound::NORMAL);
+		player.Save();
+		GetUI().Push(DialogPanel::Info("Game saved."));
+		return true;
+	}
 	else if(key == 'l')
 	{
 		sound = UI::UISound::NONE;

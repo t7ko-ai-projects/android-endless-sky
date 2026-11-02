@@ -12,6 +12,17 @@ interface "planet"
 	box "content"
 		from -300 -63 to 180 214
 
+	# t7: save the game now.
+	visible
+	sprite "ui/planet dialog button"
+		center 280 -111
+	button v "Sa_ve"
+		center 280 -111
+		dimensions 140 40
+		size 18
+		align right
+		pad 10 0
+
 	visible if "has shipyard"
 	sprite "ui/planet dialog button"
 		center 280 -51
@@ -125,6 +136,17 @@ interface "planet (small screen)"
 
 	box "content"
 		from -300 -63 to 180 214
+
+	# t7: save the game now.
+	visible
+	sprite "ui/planet dialog button"
+		center 280 -111
+	button v "Sa_ve"
+		center 280 -111
+		dimensions 140 40
+		size 18
+		align right
+		pad 10 0
 
 	visible if "has shipyard"
 	sprite "ui/planet dialog button"

@@ -21,6 +21,8 @@ Each fork feature gets one step: one action and one thing to look at.
    with a finger: they are thicker and easy to grab.
 7. **Full table in Ship Info** ([spec](ship-info-full-table.md)). Info → ship tab: the
    energy/heat table has thrusting, turning and net-change rows, like the outfitter.
+8. **Save button** ([spec](save-button.md)). Land, buy something, tap **Save**: "Game
+   saved." Quit to the main menu and load the main save: the purchase is there.
 
 ## Adding a feature
 
