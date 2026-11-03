@@ -63,6 +63,10 @@ private:
 	// Draw the two subsections of this panel.
 	void DrawPlayer(const Rectangle &bounds);
 	void DrawFleet(const Rectangle &bounds);
+	// t7: fleet list scrollbar and moving the selection to the top or bottom.
+	void DrawFleetScrollbar(const Rectangle &bounds);
+	void ScrollToScrollbarPoint(double y);
+	void MoveSelectedShips(bool toTop);
 	// Draw a list of details about the player, such as the player's licenses or salaries.
 	void DrawList(const std::vector<std::pair<std::string, int64_t>> &list, std::shared_ptr<TableArea> &area,
 		Point &topLeft, int width, const std::string &title, int64_t titleValue, int height, bool drawValues = true);
@@ -118,4 +122,8 @@ private:
 
 	Point scrollPos;
 	int scrollStart = 0;
+	// t7: the fleet list's scrollbar: its zone (empty when the list fits) and whether it is being dragged.
+	Point scrollbarTopLeft;
+	Point scrollbarSize;
+	bool isScrollbarDragging = false;
 };

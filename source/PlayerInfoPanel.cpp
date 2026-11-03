@@ -218,6 +218,8 @@ void PlayerInfoPanel::Draw()
 		// should be shown.
 		if(!panelState.AllSelected().empty())
 		{
+			// t7: To Top / To Bottom buttons.
+			interfaceInfo.SetCondition("can move ships");
 			bool parkable = false;
 			allParked = true;
 			for(int i : panelState.AllSelected())
@@ -399,6 +401,8 @@ bool PlayerInfoPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &comman
 				ScrollAbsolute(selected);
 		}
 	}
+	else if((key == 't' || key == 'b') && panelState.CanEdit() && !panelState.AllSelected().empty())
+		MoveSelectedShips(key == 't');
 	else if(panelState.CanEdit() && (key == 'k' || (key == 'p' && shift)) && !panelState.AllSelected().empty())
 	{
 		// Toggle the parked status for all selected ships.
@@ -522,6 +526,15 @@ bool PlayerInfoPanel::Click(int x, int y, MouseButton button, int clicks)
  	dragPoint = scrollPos = Point(x, y);
  	scrollStart = panelState.Scroll();
 
+	// t7: grab the scrollbar (with some slack around it for a finger).
+	if(scrollbarSize.Y() > 0. && Rectangle::FromCorner(scrollbarTopLeft - Point(16., 0.),
+			scrollbarSize + Point(32., 0.)).Contains(mouse))
+	{
+		isScrollbarDragging = true;
+		ScrollToScrollbarPoint(y);
+		return true;
+	}
+
 	// Do nothing if the click was not on one of the ships in the fleet list.
 	int selectedShip = GetShipIndexFromPoint(x, y);
 	if(selectedShip < 0)
@@ -575,7 +588,9 @@ bool PlayerInfoPanel::Drag(double dx, double dy)
 {
 	dragPoint += Point(dx, dy);
 	hoverPoint = dragPoint;
-	if(isDragging)
+	if(isScrollbarDragging)
+		ScrollToScrollbarPoint(dragPoint.Y());
+	else if(isDragging)
 	{
 		
 	}
@@ -595,6 +610,7 @@ bool PlayerInfoPanel::Release(int x, int y, MouseButton button)
 {
 	if(button != MouseButton::LEFT)
 		return false;
+	isScrollbarDragging = false;
 	if(!isDragging)
 		return true;
 	isDragging = false;
@@ -859,6 +875,62 @@ void PlayerInfoPanel::DrawFleet(const Rectangle &bounds)
 			pos.Y() += 20.;
 		}
 	}
+
+	DrawFleetScrollbar(bounds);
+}
+
+
+
+// t7: a wide scrollbar on the right of the fleet list, easy to drag on a touch screen.
+void PlayerInfoPanel::DrawFleetScrollbar(const Rectangle &bounds)
+{
+	const int ships = panelState.Ships().size();
+	const int lines = LinesPerPage();
+	if(ships <= lines)
+	{
+		scrollbarSize = Point();
+		return;
+	}
+	const double width = 24.;
+	scrollbarTopLeft = Point(bounds.Right() - width - 4., bounds.Top() + 30.);
+	scrollbarSize = Point(width, bounds.Height() - 40.);
+	FillShader::Fill(Rectangle::FromCorner(scrollbarTopLeft, scrollbarSize), *GameData::Colors().Get("faint"));
+	const double thumbHeight = max(30., scrollbarSize.Y() * lines / ships);
+	const double thumbTop = (scrollbarSize.Y() - thumbHeight) * panelState.Scroll() / (ships - lines);
+	FillShader::Fill(Rectangle::FromCorner(scrollbarTopLeft + Point(4., thumbTop), Point(width - 8., thumbHeight)),
+		*GameData::Colors().Get(isScrollbarDragging ? "bright" : "medium"));
+}
+
+
+
+void PlayerInfoPanel::ScrollToScrollbarPoint(double y)
+{
+	const int ships = panelState.Ships().size();
+	const int lines = LinesPerPage();
+	if(ships <= lines || scrollbarSize.Y() <= 0.)
+		return;
+	const double fraction = clamp((y - scrollbarTopLeft.Y()) / scrollbarSize.Y(), 0., 1.);
+	ScrollAbsolute(lround(fraction * (ships - lines)));
+}
+
+
+
+// t7: move the selected ships to the top of the list (just below the flagship) or to the bottom.
+void PlayerInfoPanel::MoveSelectedShips(bool toTop)
+{
+	if(!panelState.CanEdit() || panelState.AllSelected().empty())
+		return;
+	const int count = panelState.Ships().size();
+	const int moved = panelState.AllSelected().size();
+	int toIndex = count - moved;
+	if(toTop)
+	{
+		// Keep the flagship first, unless it is one of the ships being moved.
+		const bool flagshipFirst = (panelState.Ships()[0].get() == player.Flagship());
+		toIndex = (flagshipFirst && !panelState.AllSelected().contains(0)) ? 1 : 0;
+	}
+	if(panelState.ReorderShipsTo(toIndex))
+		ScrollAbsolute(toTop ? 0 : count);
 }
 
 

@@ -29,6 +29,9 @@ Each fork feature gets one step: one action and one thing to look at.
 10. **Map memory and notes** ([spec](map-memory-and-notes.md)). After visiting the Ember
    Waste, open the map far away: those systems are squares with names. Select one, tap
    **Note**, write "jump test"; tap **Search**, type "jump": it is circled in yellow.
+11. **Fleet list tools** ([spec](fleet-list-tools.md)). With a long fleet, drag the bar on
+   the right of Info → player tab: the list follows. Select a ship, tap **To Bottom**, then
+   **To Top**: it ends up last, then just below the flagship.
 
 ## Adding a feature
 

@@ -858,3 +858,15 @@ interface "info panel"
 		from -760 -50 to -650 0 bottom right
 	button v "Save Order"
 		from -760 -50 to -650 0 bottom right
+
+	# t7: move the selected ships to the top or bottom of the fleet.
+	visible if "can move ships"
+	sprite "ui/dialog cancel"
+		from -960 -50 to -870 0 bottom right
+	button t "To _Top"
+		from -960 -50 to -870 0 bottom right
+	sprite "ui/dialog cancel"
+		from -860 -50 to -770 0 bottom right
+	button b "To _Bottom"
+		from -860 -50 to -770 0 bottom right
+	visible

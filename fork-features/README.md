@@ -17,3 +17,4 @@ build after every rebase onto an upstream release.
 | Save button when landed | [save-button.md](save-button.md) | `t7: feat` commit |
 | Save when the app goes to the background | [background-save.md](background-save.md) | `t7: feat` commit |
 | Map: visited shrouded systems and notes | [map-memory-and-notes.md](map-memory-and-notes.md) | `t7: feat` commit |
+| Fleet list: scrollbar and To Top / To Bottom | [fleet-list-tools.md](fleet-list-tools.md) | `t7: feat` commit |
