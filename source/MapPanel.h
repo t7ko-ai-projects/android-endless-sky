@@ -129,6 +129,10 @@ protected:
 	const System *ClickedSystem(int x, int y) const;
 	void Select(const System *system);
 	void Find(const std::string &name);
+	// t7: system notes.
+	void EditNote(const std::string &text);
+	void SearchNotes(const std::string &text);
+	void DrawNote();
 
 	double Zoom() const;
 
@@ -199,9 +203,10 @@ private:
 	class Node {
 	public:
 		Node(const Point &position, const Color &color, const std::string &name,
-			const Color &nameColor, const Government *government, const std::vector<const Sprite *> &mapIcons)
+			const Color &nameColor, const Government *government, const std::vector<const Sprite *> &mapIcons,
+			bool remembered = false, bool noteMatch = false)
 			: position(position), color(color), name(name), nameColor(nameColor),
-			government(government), mapIcons(mapIcons) {}
+			government(government), mapIcons(mapIcons), remembered(remembered), noteMatch(noteMatch) {}
 
 		Point position;
 		Color color;
@@ -209,6 +214,10 @@ private:
 		Color nameColor;
 		const Government *government;
 		std::vector<const Sprite *> mapIcons;
+		// t7: a visited shrouded system the game would otherwise hide, drawn as a square.
+		bool remembered;
+		// t7: its note matches the current note search.
+		bool noteMatch;
 	};
 
 	class Link {

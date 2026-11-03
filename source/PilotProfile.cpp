@@ -236,6 +236,8 @@ void PilotProfile::Load()
 			playTime = child.Value(1);
 		else if(key == "idle time" && hasValue)
 			idleTime = child.Value(1);
+		else if(key == "t7 system note" && child.Size() >= 3)
+			systemNotes[child.Token(1)] = child.Token(2);
 	}
 
 	// If the pilot's gamerules were never loaded, then this is an
@@ -281,6 +283,15 @@ void PilotProfile::Save()
 
 	out.Write("playtime", playTime);
 	out.Write("idle time", idleTime);
+	for(const auto &[system, note] : systemNotes)
+		out.Write("t7 system note", system, note);
+}
+
+
+
+map<string, string> &PilotProfile::SystemNotes()
+{
+	return systemNotes;
 }
 
 

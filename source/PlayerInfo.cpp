@@ -3079,6 +3079,10 @@ bool PlayerInfo::HasSeen(const System &system, bool excludeMissions) const
 			return true;
 	}
 
+	// t7: a shrouded system stays on the map once visited.
+	if(shrouded && HasVisited(system))
+		return true;
+
 	if(shrouded)
 	{
 		// All systems linked to a system the player can view are visible.
@@ -3101,8 +3105,8 @@ bool PlayerInfo::HasSeen(const System &system, bool excludeMissions) const
 bool PlayerInfo::CanView(const System &system) const
 {
 	// A player can always view the contents of the system they are in. Otherwise,
-	// the system must have been visited before and not be shrouded.
-	return (HasVisited(system) && !system.Shrouded()) || &system == this->system;
+	// the system must have been visited before. t7: shrouded systems stay viewable once visited.
+	return HasVisited(system) || &system == this->system;
 }
 
 

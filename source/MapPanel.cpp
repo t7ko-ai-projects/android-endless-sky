@@ -42,6 +42,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Mission.h"
 #include "MissionPanel.h"
 #include "Planet.h"
+#include "PilotProfile.h"
 #include "PlayerInfo.h"
 #include "shader/PointerShader.h"
 #include "Politics.h"
@@ -49,7 +50,10 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Radar.h"
 #include "shader/RingShader.h"
 #include "RoutePlan.h"
+#include "Rectangle.h"
 #include "Screen.h"
+#include "shader/FillShader.h"
+#include "text/WrappedText.h"
 #include "Ship.h"
 #include "ShipJumpNavigation.h"
 #include "image/Sprite.h"
@@ -72,6 +76,38 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 using namespace std;
 
 namespace {
+	// t7: the current note search, kept while switching between map views.
+	string noteSearch;
+
+	// t7: a visited shrouded system, which the game would otherwise hide from the map.
+	bool Remembered(const PlayerInfo &player, const System &system)
+	{
+		return system.Shrouded() && player.HasVisited(system);
+	}
+
+	const string *SystemNote(PlayerInfo &player, const System &system)
+	{
+		if(!player.Pilot())
+			return nullptr;
+		const auto &notes = player.Pilot()->SystemNotes();
+		auto it = notes.find(system.TrueName());
+		return it == notes.end() ? nullptr : &it->second;
+	}
+
+	bool NoteMatches(PlayerInfo &player, const System &system)
+	{
+		if(noteSearch.empty())
+			return false;
+		const string *note = SystemNote(player, system);
+		return note && Format::Search(*note, noteSearch) >= 0;
+	}
+
+	const Color &NoteMatchColor()
+	{
+		static const Color color(1.f, .85f, 0.f, 1.f);
+		return color;
+	}
+
 	const string SHOW_ESCORT_SYSTEMS = "Show escort systems on map";
 	const string SHOW_STORED_OUTFITS = "Show stored outfits on map";
 	const double MISSION_POINTERS_ANGLE_DELTA = 30.;
@@ -675,6 +711,7 @@ void MapPanel::FinishDrawing(const string &buttonCondition)
 {
 	// Display the name of and distance to the selected system.
 	DrawSelectedSystem();
+	DrawNote();
 
 	// Draw the buttons to switch to other map modes.
 
@@ -828,6 +865,22 @@ bool MapPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &command, bool
 	else if(key == 'f')
 	{
 		GetUI().Push(DialogPanel::RequestString(this, &MapPanel::Find, "Search for:", "", Truncate::NONE, true));
+		return true;
+	}
+	else if(key == 'e' && selectedSystem && player.Pilot())
+	{
+		// t7: edit the selected system's note.
+		const string *note = SystemNote(player, *selectedSystem);
+		GetUI().Push(DialogPanel::RequestString(this, &MapPanel::EditNote,
+			"Note for " + selectedSystem->DisplayName() + " (empty to delete):", note ? *note : "",
+			Truncate::NONE, true));
+		return true;
+	}
+	else if(key == 'r')
+	{
+		// t7: highlight systems whose notes contain the text.
+		GetUI().Push(DialogPanel::RequestString(this, &MapPanel::SearchNotes,
+			"Search notes for (empty to clear):", noteSearch, Truncate::NONE, true));
 		return true;
 	}
 	else if(key == SDLK_PLUS || key == SDLK_KP_PLUS || key == SDLK_EQUALS)
@@ -1217,6 +1270,54 @@ void MapPanel::Select(const System *system)
 
 
 
+void MapPanel::EditNote(const string &text)
+{
+	if(!selectedSystem || !player.Pilot())
+		return;
+	auto &notes = player.Pilot()->SystemNotes();
+	if(text.empty())
+		notes.erase(selectedSystem->TrueName());
+	else
+		notes[selectedSystem->TrueName()] = text;
+	player.Pilot()->Save();
+	UpdateCache();
+}
+
+
+
+void MapPanel::SearchNotes(const string &text)
+{
+	noteSearch = text;
+	UpdateCache();
+	int matches = 0;
+	for(const Node &node : nodes)
+		matches += node.noteMatch;
+	if(!text.empty())
+		GetUI().Push(DialogPanel::Info(matches ? to_string(matches) + " system(s) with \"" + text
+			+ "\" in their notes are circled in yellow." : "No notes contain \"" + text + "\"."));
+}
+
+
+
+// t7: show the selected system's note at the top of the map.
+void MapPanel::DrawNote()
+{
+	if(!selectedSystem)
+		return;
+	const string *note = SystemNote(player, *selectedSystem);
+	if(!note)
+		return;
+	WrappedText text(FontSet::Get(14));
+	text.SetWrapWidth(400);
+	text.Wrap("Note: " + *note);
+	const Point topLeft(-200., Screen::Top() + 10.);
+	FillShader::Fill(Rectangle::FromCorner(topLeft - Point(10., 5.), Point(420., text.Height() + 10.)),
+		Color(0.f, 0.f, 0.f, .7f));
+	text.Draw(topLeft, *GameData::Colors().Get("bright"));
+}
+
+
+
 void MapPanel::Find(const string &name)
 {
 	int bestIndex = 9999;
@@ -1492,11 +1593,13 @@ void MapPanel::UpdateCache()
 		static const vector<const Sprite *> unmappedSystem = {SpriteSet::Get("map/unexplored-star")};
 
 		const bool canViewSystem = player.CanView(system);
+		const bool remembered = Remembered(player, system);
 		nodes.emplace_back(system.Position(), color,
-			player.KnowsName(system, isSimplified) ? system.DisplayName() : "",
+			(remembered || player.KnowsName(system, isSimplified)) ? system.DisplayName() : "",
 			(&system == &playerSystem || &system == selectedSystem) ? closeNameColor : farNameColor,
 			canViewSystem ? system.GetGovernment() : nullptr,
-			canViewSystem ? system.GetMapIcons() : unmappedSystem);
+			canViewSystem ? system.GetMapIcons() : unmappedSystem,
+			remembered, NoteMatches(player, system));
 	}
 
 	// Now, update the cache of the links.
@@ -1517,7 +1620,8 @@ void MapPanel::UpdateCache()
 				// Only draw links between two systems if one of the two is
 				// viewable. Also, avoid drawing twice by only drawing in the
 				// direction of increasing pointer values.
-				if((!player.CanView(*system) && !player.CanView(*link)) || !link->IsValid())
+				if((!player.CanView(*system) && !player.CanView(*link)
+						&& !Remembered(player, *system) && !Remembered(player, *link)) || !link->IsValid())
 					continue;
 
 				bool isClose = (system == &playerSystem || link == &playerSystem);
@@ -1793,7 +1897,18 @@ void MapPanel::DrawSystems()
 	for(const Node &node : nodes)
 	{
 		Point pos = zoom * (node.position + center);
-		if(commodity != SHOW_STARS)
+		// t7: highlight systems whose note matches the search.
+		if(node.noteMatch)
+			RingShader::Draw(pos, OUTER + 6.f, OUTER + 3.f, NoteMatchColor());
+		if(node.remembered && commodity != SHOW_STARS)
+		{
+			// t7: a square instead of a ring for visited shrouded systems.
+			const double r = OUTER - 1.;
+			const Point corners[4] = {pos + Point(-r, -r), pos + Point(r, -r), pos + Point(r, r), pos + Point(-r, r)};
+			for(int i = 0; i < 4; ++i)
+				LineShader::Draw(corners[i], corners[(i + 1) % 4], OUTER - INNER, node.color);
+		}
+		else if(commodity != SHOW_STARS)
 			RingShader::Draw(pos, OUTER, INNER, node.color);
 		else
 		{

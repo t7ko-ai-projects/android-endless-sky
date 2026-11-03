@@ -2873,6 +2873,19 @@ interface "map buttons (small screen)" bottom right
 		from -50 -90 to -80 -120
 		size 18
 
+	# t7: system notes.
+	active
+	sprite "ui/dialog cancel"
+		from 0 -130 to -90 -180
+	button e "Not_e"
+		from -80 -170 to -10 -140
+
+	active
+	sprite "ui/dialog cancel"
+		from 0 -180 to -90 -230
+	button r "Sea_rch"
+		from -80 -220 to -10 -190
+
 
 
 interface "map buttons (simplified)" bottom right

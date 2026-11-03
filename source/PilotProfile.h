@@ -20,6 +20,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "SavedGame.h"
 
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -106,8 +107,12 @@ public:
 
 	void AddPlayTime(std::chrono::nanoseconds timeVal, bool isIdle);
 
+	// t7: free-form notes per system (by true name), shared by all of this pilot's save files.
+	std::map<std::string, std::string> &SystemNotes();
+
 
 private:
+	std::map<std::string, std::string> systemNotes;
 	std::string filePath;
 	bool isLoaded = false;
 

@@ -26,6 +26,9 @@ Each fork feature gets one step: one action and one thing to look at.
 9. **Background save** ([spec](background-save.md)). Land, buy something, switch to another
    app, then force-stop Endless Sky (t7) in Android settings. Start it and load: the
    purchase is there.
+10. **Map memory and notes** ([spec](map-memory-and-notes.md)). After visiting the Ember
+   Waste, open the map far away: those systems are squares with names. Select one, tap
+   **Note**, write "jump test"; tap **Search**, type "jump": it is circled in yellow.
 
 ## Adding a feature
 
