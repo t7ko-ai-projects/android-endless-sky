@@ -204,9 +204,9 @@ private:
 	public:
 		Node(const Point &position, const Color &color, const std::string &name,
 			const Color &nameColor, const Government *government, const std::vector<const Sprite *> &mapIcons,
-			bool remembered = false, bool noteMatch = false)
+			bool remembered = false, bool noteMatch = false, bool landable = false)
 			: position(position), color(color), name(name), nameColor(nameColor),
-			government(government), mapIcons(mapIcons), remembered(remembered), noteMatch(noteMatch) {}
+			government(government), mapIcons(mapIcons), remembered(remembered), noteMatch(noteMatch), landable(landable) {}
 
 		Point position;
 		Color color;
@@ -218,6 +218,8 @@ private:
 		bool remembered;
 		// t7: its note matches the current note search.
 		bool noteMatch;
+		// t7: an uninhabited system with a planet the flagship can land on.
+		bool landable;
 	};
 
 	class Link {

@@ -85,6 +85,21 @@ namespace {
 		return system.Shrouded() && player.HasVisited(system);
 	}
 
+	// t7: an uninhabited system with a planet the flagship could land on.
+	bool HasLandablePlanet(const System &system, const Ship *flagship)
+	{
+		if(system.IsInhabited(flagship))
+			return false;
+		for(const StellarObject &object : system.Objects())
+			if(object.HasSprite() && object.HasValidPlanet())
+			{
+				const Planet &planet = *object.GetPlanet();
+				if(!planet.IsWormhole() && planet.IsAccessible(flagship))
+					return true;
+			}
+		return false;
+	}
+
 	const string *SystemNote(PlayerInfo &player, const System &system)
 	{
 		if(!player.Pilot())
@@ -1599,7 +1614,8 @@ void MapPanel::UpdateCache()
 			(&system == &playerSystem || &system == selectedSystem) ? closeNameColor : farNameColor,
 			canViewSystem ? system.GetGovernment() : nullptr,
 			canViewSystem ? system.GetMapIcons() : unmappedSystem,
-			remembered, NoteMatches(player, system));
+			remembered, NoteMatches(player, system),
+			canViewSystem && HasLandablePlanet(system, player.Flagship()));
 	}
 
 	// Now, update the cache of the links.
@@ -1951,6 +1967,14 @@ void MapPanel::DrawSystems()
 	}
 	starBatch.Draw();
 	starBatch.Clear();
+
+	// t7: a dot on uninhabited systems with a landable planet, off-centre in the
+	// star view so the star icons don't hide it. Drawn after the stars to stay on top.
+	static const Color landableColor(.4f, .9f, .5f, 1.f);
+	const Point landableOffset = commodity == SHOW_STARS ? Point(7., 7.) : Point();
+	for(const Node &node : nodes)
+		if(node.landable)
+			RingShader::Draw(zoom * (node.position + center) + landableOffset, 3.f, 0.f, landableColor);
 }
 
 

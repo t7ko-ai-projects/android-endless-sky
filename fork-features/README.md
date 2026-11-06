@@ -19,3 +19,4 @@ build after every rebase onto an upstream release.
 | Map: visited shrouded systems and notes | [map-memory-and-notes.md](map-memory-and-notes.md) | `t7: feat` commit |
 | Fleet list: scrollbar and To Top / To Bottom | [fleet-list-tools.md](fleet-list-tools.md) | `t7: feat` commit |
 | Outfitter: ticks per installed item | [outfit-count-ticks.md](outfit-count-ticks.md) | `t7: feat` commit |
+| Map: dot on systems with a landable planet | [landable-dot.md](landable-dot.md) | `t7: feat` commit |

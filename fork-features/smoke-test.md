@@ -35,6 +35,9 @@ Each fork feature gets one step: one action and one thing to look at.
 12. **Outfit count ticks** ([spec](outfit-count-ticks.md)). In the outfitter, select an outfit
    with one ship selected: ships with 1-3 show that many ticks, more than 3 show one tick
    and a count; ammo in the thousands shows like `x2.8k`. Unselected ships' marks are dim.
+13. **Landable dot** ([spec](landable-dot.md)). On the map, a visited uninhabited system with
+   a planet shows a pale green dot; one with no planet doesn't. Switch to the Stars view: the
+   dot moves to the lower right of the stars.
 
 ## Adding a feature
 
