@@ -32,6 +32,9 @@ Each fork feature gets one step: one action and one thing to look at.
 11. **Fleet list tools** ([spec](fleet-list-tools.md)). With a long fleet, drag the bar on
    the right of Info → player tab: the list follows. Select a ship, tap **To Bottom**, then
    **To Top**: it ends up last, then just below the flagship.
+12. **Outfit count ticks** ([spec](outfit-count-ticks.md)). In the outfitter, select an outfit
+   with one ship selected: ships with 1-3 show that many ticks, more than 3 show one tick
+   and a count; ammo in the thousands shows like `x2.8k`. Unselected ships' marks are dim.
 
 ## Adding a feature
 

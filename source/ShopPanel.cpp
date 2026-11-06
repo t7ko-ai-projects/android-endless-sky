@@ -997,6 +997,20 @@ const Outfit *ShopPanel::Zone::GetOutfit() const
 
 
 
+namespace {
+	// t7: a short count for the sidebar ticks: x5, x999, x2.8k, x12k.
+	string OutfitCountLabel(int count)
+	{
+		if(count < 1000)
+			return "x" + to_string(count);
+		if(count < 10000)
+			return "x" + to_string(count / 1000) + "." + to_string(count / 100 % 10) + "k";
+		return "x" + to_string(count / 1000) + "k";
+	}
+}
+
+
+
 void ShopPanel::DrawShipsSidebar()
 {
 	const Font &font = FontSet::Get(14);
@@ -1089,9 +1103,29 @@ void ShopPanel::DrawShipsSidebar()
 				warningType = check;
 		}
 
-		if(isSelected && playerShips.size() > 1 && ship->OutfitCount(selectedOutfit))
-			PointerShader::Draw(Point(point.X() - static_cast<int>(ICON_TILE / 3), point.Y()),
-				Point(1., 0.), 14.f, 12.f, 0., Color(.9f, .9f, .9f, .2f));
+		// t7: mark every ship carrying the selected outfit: one tick per item up to three,
+		// then a single tick with the count under it.
+		const int outfitCount = ship->OutfitCount(selectedOutfit);
+		if(outfitCount)
+		{
+			static const int MAX_TICKS = 3;
+			static const double TICK_SPACING = 12.;
+			const Color tickColor = isSelected ? Color(.9f, .9f, .9f, .2f) : Color(.5f, .5f, .5f, .1f);
+			const double tickX = point.X() - static_cast<int>(ICON_TILE / 3);
+			const int ticks = min(outfitCount, MAX_TICKS);
+			double tickY = point.Y() - .5 * TICK_SPACING * (ticks - 1);
+			if(outfitCount > MAX_TICKS)
+				tickY = point.Y() - .5 * font.Height();
+			for(int i = 0; i < (outfitCount > MAX_TICKS ? 1 : ticks); ++i)
+				PointerShader::Draw(Point(tickX, tickY + i * TICK_SPACING),
+					Point(1., 0.), 11.f, 10.f, 0., tickColor);
+			if(outfitCount > MAX_TICKS)
+			{
+				const string label = OutfitCountLabel(outfitCount);
+				font.Draw(label, Point(tickX - .5 * font.Width(label), tickY + 6.),
+					isSelected ? bright : medium);
+			}
+		}
 
 		if(ship->IsParked())
 		{
