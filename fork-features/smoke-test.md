@@ -16,7 +16,7 @@ Each fork feature gets one step: one action and one thing to look at.
    Fly over the dropped boxes: your ships don't collect them.
 5. **Escort counts** ([spec](escort-counts.md)). Info → player tab shows "active escorts".
    In flight, `N/M` is above the escort icons; let an escort's shields drop to 30% (yellow
-   light) or get it disabled (red light).
+   light) or get it disabled (red light). After `N/M`, `S x% H y%` drops as escorts take damage.
 6. **Shop scrollbars** ([spec](shop-scrollbar.md)). In the outfitter, drag the scrollbars
    with a finger: they are thicker and easy to grab.
 7. **Full table in Ship Info** ([spec](ship-info-full-table.md)). Info → ship tab: the

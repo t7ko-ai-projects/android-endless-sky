@@ -173,6 +173,14 @@ void EscortDisplay::Draw(const Rectangle &bounds) const
 			const double x = textPoint.X() + font.Width(to_string(fleetTotal) + "/" + to_string(fleetHere)) + 10.;
 			RingShader::Draw(Point(x, textPoint.Y() + font.Height() / 2.), 6.f, 0.f, lightColor);
 		}
+		// t7: the weakest shields and hull in this system, on the same line after the light.
+		if(fleetMinShields >= 0.)
+		{
+			const auto percent = [](double fraction) { return to_string(static_cast<int>(fraction * 100. + .5)) + "%"; };
+			const double x = textPoint.X() + font.Width(to_string(fleetTotal) + "/" + to_string(fleetHere)) + 20.;
+			font.Draw("S " + percent(fleetMinShields) + " H " + percent(fleetMinHull),
+				Point(x, textPoint.Y()), *colors.Get("medium"));
+		}
 	}
 }
 
@@ -184,6 +192,14 @@ void EscortDisplay::SetFleetSummary(int total, int here, int alert, bool blinkOn
 	fleetHere = here;
 	fleetAlert = alert;
 	this->blinkOn = blinkOn;
+}
+
+
+
+void EscortDisplay::SetFleetHealth(double minShields, double minHull)
+{
+	fleetMinShields = minShields;
+	fleetMinHull = minHull;
 }
 
 

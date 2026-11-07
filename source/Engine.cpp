@@ -669,13 +669,21 @@ void Engine::Step(bool isActive)
 	int fleetTotal = 0;
 	int fleetHere = 0;
 	int fleetAlert = 0;
+	double fleetMinShields = -1.;
+	double fleetMinHull = -1.;
 	for(const shared_ptr<Ship> &escort : player.Ships())
 		if(!escort->IsParked() && escort != flagship && !escort->IsDestroyed())
 		{
 			// t7: counts and warning light for the escort display.
 			++fleetTotal;
 			if(escort->GetSystem() == currentSystem)
+			{
 				++fleetHere;
+				const double shields = escort->ShieldFraction();
+				const double hull = escort->HullFraction();
+				fleetMinShields = fleetMinShields < 0. ? shields : min(fleetMinShields, shields);
+				fleetMinHull = fleetMinHull < 0. ? hull : min(fleetMinHull, hull);
+			}
 			if(escort->IsDisabled())
 				fleetAlert = 2;
 			else if(escort->ShieldFraction() <= .3)
@@ -686,6 +694,7 @@ void Engine::Step(bool isActive)
 			escorts.Add(escort, system == currentSystem, system && player.KnowsName(*system), fleetIsJumping, isSelected);
 		}
 	escorts.SetFleetSummary(fleetTotal, fleetHere, fleetAlert, (step / 30) % 2 == 0);
+	escorts.SetFleetHealth(fleetMinShields, fleetMinHull);
 
 	statuses.clear();
 	missileLabels.clear();

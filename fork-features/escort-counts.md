@@ -8,6 +8,8 @@
   number of active escorts and M how many of them are in the current system. Next to it, a
   blinking light: **yellow** if any active escort's shields are at 30% or lower, **red**
   (wins over yellow) if any active escort is disabled. No light when all is well.
+- On the same line, after the light: `S x% H y%`, the lowest shield and the lowest hull percentage among
+  active escorts in the current system. Hidden when none are here. (Above `N/M` there is no room on a phone.)
 
 ## Requirements
 
