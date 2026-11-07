@@ -5526,6 +5526,53 @@ void AI::IssueOrder(const OrderSingle &newOrder, const string &description)
 
 
 
+bool AI::FleetHasOrder(const Command &command) const
+{
+	const auto hasOrder = [&command](const OrderSet &set) -> bool {
+		if(command.Has(Command::GATHER))
+			return set.Has(Orders::Types::GATHER);
+		if(command.Has(Command::HOLD_POSITION))
+			return set.Has(Orders::Types::HOLD_POSITION) || set.Has(Orders::Types::HOLD_ACTIVE);
+		if(command.Has(Command::HOLD_FIRE))
+			return set.Has(Orders::Types::HOLD_FIRE);
+		if(command.Has(Command::HARVEST))
+			return set.Has(Orders::Types::HARVEST);
+		return set.Has(Orders::Types::ATTACK) || set.Has(Orders::Types::FINISH_OFF)
+			|| set.Has(Orders::Types::MINE);
+	};
+	const auto shipHasOrder = [this, &hasOrder](const Ship *ship) -> bool {
+		const auto it = orders.find(ship);
+		return it != orders.end() && hasOrder(it->second);
+	};
+
+	bool found = false;
+	const vector<weak_ptr<Ship>> &selected = player.SelectedEscorts();
+	if(!selected.empty())
+	{
+		for(const weak_ptr<Ship> &it : selected)
+		{
+			const shared_ptr<Ship> ship = it.lock();
+			if(!ship || ship->IsDestroyed())
+				continue;
+			if(!shipHasOrder(ship.get()))
+				return false;
+			found = true;
+		}
+		return found;
+	}
+	for(const shared_ptr<Ship> &ship : player.Ships())
+	{
+		if(ship.get() == player.Flagship() || ship->IsParked() || ship->IsDestroyed())
+			continue;
+		if(!shipHasOrder(ship.get()))
+			return false;
+		found = true;
+	}
+	return found;
+}
+
+
+
 // Change the ship's order based on its current fulfillment of the order.
 void AI::UpdateOrders(const Ship &ship)
 {

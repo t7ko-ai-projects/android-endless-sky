@@ -66,6 +66,9 @@ public:
 	void IssueShipTarget(const std::shared_ptr<Ship> &target);
 	void IssueAsteroidTarget(const std::shared_ptr<Minable> &targetAsteroid);
 	void IssueMoveTarget(const Point &target, const System *moveToSystem);
+	// t7: whether every ship this fleet command would go to already has its order,
+	// so that giving the command again would turn it off.
+	bool FleetHasOrder(const Command &command) const;
 
 	// Commands issued via the keyboard (mostly, to the flagship).
 	void UpdateKeys(PlayerInfo &player, const Command &activeCommands);

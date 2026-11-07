@@ -85,6 +85,8 @@ public:
 	void Go();
 	// Whether the player has the game paused.
 	bool IsPaused() const;
+	// t7: the fleet commands that are currently on, as of the last step.
+	const Command &ActiveFleetOrders() const { return activeFleetOrders; }
 
 	// Give a command on behalf of the player, used for integration tests.
 	void GiveCommand(const Command &command);
@@ -261,6 +263,7 @@ private:
 	std::vector<Ship *> hasTractorBeam;
 
 	AI ai;
+	Command activeFleetOrders;
 
 	TaskQueue queue;
 	TaskQueue asyncQueue;

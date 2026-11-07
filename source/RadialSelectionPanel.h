@@ -34,7 +34,10 @@ public:
 	void ReleaseWithAxisZero(SDL_GameControllerAxis axis);
 
 	void AddOption(const std::string& icon, const std::string& description, std::function<void()> callback);
-	void AddOption(Command command);
+	// t7: an active option is a toggle that is currently on, and is drawn to stand out:
+	// in bright red if activeRed is set, otherwise in the bright color.
+	void AddOption(Command command, bool active = false, bool activeRed = false);
+	void SetLastOptionActive(bool active);
 
 	// Adjustable properties
 	// Where the panel is centered
@@ -73,6 +76,8 @@ private:
 		std::function<void()> callback;
 
 		Point position;
+		bool active = false;
+		bool activeRed = false;
 	};
 
 	std::vector<Option> m_options;

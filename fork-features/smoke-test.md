@@ -38,6 +38,9 @@ Each fork feature gets one step: one action and one thing to look at.
 13. **Landable dot** ([spec](landable-dot.md)). On the map, a visited uninhabited system with
    a planet shows a pale green dot; one with no planet doesn't. Switch to the Stars view: the
    dot moves to the lower right of the stars.
+14. **Fleet toggles** ([spec](fleet-toggle-display.md)). With escorts, open the fleet command
+   menu and pick Gather. Open it again: Gather has a bright ring and reads "(on)". Pick it
+   again and reopen: the ring is gone. With a cloaking device, turn it on: its icon is red.
 
 ## Adding a feature
 

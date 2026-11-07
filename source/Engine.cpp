@@ -459,6 +459,13 @@ void Engine::Step(bool isActive)
 	events.swap(eventQueue);
 	eventQueue.clear();
 
+	// t7: read here, while the calculation thread is stopped, for the fleet command menu.
+	activeFleetOrders = Command();
+	for(const Command &command : {Command::FIGHT, Command::GATHER, Command::HOLD_POSITION,
+			Command::HOLD_FIRE, Command::HARVEST})
+		if(ai.FleetHasOrder(command))
+			activeFleetOrders |= command;
+
 	// Process any outstanding sprites that need to be uploaded to the GPU.
 	queue.ProcessSyncTasks();
 	asyncQueue.ProcessSyncTasks();

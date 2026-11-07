@@ -86,6 +86,7 @@ color "escort split fuel" .35 .31 .215 0.
 color "flagship highlight" .5 .8 .2 0.
 
 color "cloak highlight" .45 0. 0. .65
+color "t7 cloak on" 1. .1 .1 1.
 
 color "drag select" .2 1. 0. 0.
 color "drag select invalid" 1. .2 0. 0.
@@ -3471,12 +3472,24 @@ interface "main buttons" bottom right
 	sprite "ui/round_button_bg"
 		center -296 -86
 		dimensions 50 50
-	sprite "ui/icon_cloak"
-		center -296 -86
-		dimensions 40 40
 	button "Toggle cloaking device"
 		center -296 -86
 		radius 22
+	# t7: the icon and a ring turn red while the cloak is on.
+	visible if "t7 cloak off"
+	sprite "ui/icon_cloak"
+		center -296 -86
+		dimensions 40 40
+	visible if "t7 cloak on"
+	outline "t7 cloak icon"
+		colored
+		center -296 -86
+		dimensions 40 40
+	ring "t7 cloak ring"
+		color "t7 cloak on"
+		size 3
+		center -296 -86
+		dimensions 50 50
 
 	visible if "has fleet"
 	sprite "ui/round_button_bg"

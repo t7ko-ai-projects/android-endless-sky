@@ -137,7 +137,7 @@ void RadialSelectionPanel::AddOption(const std::string& icon, const std::string&
 }
 
 
-void RadialSelectionPanel::AddOption(Command command)
+void RadialSelectionPanel::AddOption(Command command, bool active, bool activeRed)
 {
 	// Add the command. Set the next flag in the lambda, so that it applies the
 	// command after this panel goes away (the engine will discard any keyboard
@@ -147,6 +147,15 @@ void RadialSelectionPanel::AddOption(Command command)
 		command.Description(),
 		[command]() { Command::InjectOnce(command, true); }
 	);
+	m_options.back().active = active;
+	m_options.back().activeRed = activeRed;
+}
+
+
+
+void RadialSelectionPanel::SetLastOptionActive(bool active)
+{
+	m_options.back().active = active;
 }
 
 
@@ -355,6 +364,7 @@ void RadialSelectionPanel::Draw()
 	
 	const Color* color = GameData::Colors().Get("medium");
 	const Color* colorBright = GameData::Colors().Get("bright");
+	static const Color activeRedColor(1.f, .1f, .1f, 1.f);
 
 	if(m_selected_idx >= 0 && m_selected_idx < static_cast<int>(m_options.size()))
 		LineShader::Draw(m_position, m_position + m_options[m_selected_idx].position * m_zoom, 3, *color);
@@ -371,7 +381,9 @@ void RadialSelectionPanel::Draw()
 		const Sprite *sprite = nullptr;
 		if(!m_options[i].icon.empty() && (sprite = SpriteSet::Get(m_options[i].icon)))
 		{
-			if(i == m_selected_idx)
+			if(m_options[i].active && m_options[i].activeRed)
+				OutlineShader::Draw(sprite, draw_position, {sprite->Width(), sprite->Height()}, activeRedColor);
+			else if(i == m_selected_idx || m_options[i].active)
 				SpriteShader::Draw(sprite, draw_position);
 			else
 				OutlineShader::Draw(sprite, draw_position, {sprite->Width(), sprite->Height()}, *color);
@@ -407,19 +419,23 @@ void RadialSelectionPanel::Draw()
 
 			float posx = draw_position.X() - font.Width(icon_label) / 2.0;
 			float posy = draw_position.Y() - font.Height() / 2.0;
-			font.DrawAliased(icon_label, posx, posy, i == m_selected_idx ? *colorBright : *color);
+			font.DrawAliased(icon_label, posx, posy, i == m_selected_idx || m_options[i].active ? *colorBright : *color);
 		}
+		// t7: a thick bright ring around a toggle that is on.
+		if(m_options[i].active)
+			RingShader::Draw(draw_position, 36, 31, m_options[i].activeRed ? activeRedColor : *colorBright);
 	}
 
 
 	if(m_selected_idx >= 0 && m_selected_idx < static_cast<int>(m_options.size()))
 	{
-		float width = font.Width(m_options[m_selected_idx].description);
+		const std::string label = m_options[m_selected_idx].description + (m_options[m_selected_idx].active ? " (on)" : "");
+		float width = font.Width(label);
 		float height = font.Height();
 		float posx = m_position.X() + (m_labelPos.X() - width / 2.0);
 		float posy = m_position.Y() + (m_labelPos.Y() - height/ 2.0);
 		FillShader::Fill(m_labelPos + m_position, {width, height}, Color(0, .5));
-		font.DrawAliased(m_options[m_selected_idx].description, posx, posy, *colorBright);
+		font.DrawAliased(label, posx, posy, *colorBright);
 	}
 	
 }

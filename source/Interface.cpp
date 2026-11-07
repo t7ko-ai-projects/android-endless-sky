@@ -1111,6 +1111,7 @@ void Interface::RadialSelectionElement::Place(const Rectangle &bounds, Panel *pa
 				radial_selection->AddOption(o.icon, o.description, [cmd]() {
 					Command::InjectOnce(cmd, true);
 				});
+				radial_selection->SetLastOptionActive(info.HasCondition("t7 on: " + cmd.Description()));
 			}
 		}
 

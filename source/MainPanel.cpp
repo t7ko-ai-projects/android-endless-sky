@@ -255,7 +255,25 @@ void MainPanel::Draw()
 				info.SetCondition("targeting asteroid");
 			}
 			if (player.Flagship()->Attributes().Get("cloak"))
+			{
 				info.SetCondition("can cloak");
+				// t7: the cloak button turns red while the cloak is on.
+				if (player.IsCloaking())
+				{
+					info.SetCondition("t7 cloak on");
+					info.SetSprite("t7 cloak icon", SpriteSet::Get("ui/icon_cloak"));
+					info.SetOutlineColor(Color(1.f, .1f, .1f, 1.f));
+					info.SetBar("t7 cloak ring", 1.);
+				}
+				else
+					info.SetCondition("t7 cloak off");
+			}
+			// t7: lets the fleet menu in the HUD data show which commands are on.
+			const Command &activeOrders = engine.ActiveFleetOrders();
+			for (const Command &command : {Command::FIGHT, Command::GATHER, Command::HOLD_POSITION,
+					Command::HOLD_FIRE, Command::HARVEST})
+				if (activeOrders.Has(command))
+					info.SetCondition("t7 on: " + command.Description());
 			if (player.Flagship()->Attributes().Get("asteroid scan power"))
 				info.SetCondition("can scan asteroids");
 			if (player.Flagship()->Attributes().Get("afterburner thrust"))
@@ -597,11 +615,12 @@ bool MainPanel::ControllerButtonDown(SDL_GameControllerButton	button)
 		selection->ReleaseWithButtonUp(button);
 		if(hasFleet)
 		{
-			selection->AddOption(Command::FIGHT);
-			selection->AddOption(Command::GATHER);
-			selection->AddOption(Command::HOLD_POSITION);
-			selection->AddOption(Command::HOLD_FIRE);
-			selection->AddOption(Command::HARVEST);
+			const Command &active = engine.ActiveFleetOrders();
+			selection->AddOption(Command::FIGHT, active.Has(Command::FIGHT));
+			selection->AddOption(Command::GATHER, active.Has(Command::GATHER));
+			selection->AddOption(Command::HOLD_POSITION, active.Has(Command::HOLD_POSITION));
+			selection->AddOption(Command::HOLD_FIRE, active.Has(Command::HOLD_FIRE));
+			selection->AddOption(Command::HARVEST, active.Has(Command::HARVEST));
 		}
 		if(hasFighters)
 		{
@@ -613,7 +632,7 @@ bool MainPanel::ControllerButtonDown(SDL_GameControllerButton	button)
 		if(canHail)
 			selection->AddOption(Command::HAIL);
 		if(canCloak)
-			selection->AddOption(Command::CLOAK);
+			selection->AddOption(Command::CLOAK, player.IsCloaking(), true);
 		GetUI().Push(selection);
 		return true;
 	}
