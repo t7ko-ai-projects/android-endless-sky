@@ -3514,12 +3514,14 @@ interface "main buttons" bottom right
 
 	# Overlayed on target display, but the hud doesn't have a panel, so to
 	# handle input, we put it here instead.
+	# t7: handled by MainPanel instead of a button: a tap selects the next ship,
+	# a long press opens the target picker.
 	visible
 	active
 	anchor top left
-	button "Select next ship"
+	box "t7 target selector"
 		center 75 315
-		radius 80
+		dimensions 160 160
 
 	# Overlayed on the navigational panel, which displays something like
 	# "Can land on: Earth"

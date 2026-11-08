@@ -282,6 +282,7 @@ add_library(main SHARED
    ${CMAKE_SOURCE_DIR}/../../../source/Swizzle.cpp
    ${CMAKE_SOURCE_DIR}/../../../source/System.cpp
    ${CMAKE_SOURCE_DIR}/../../../source/TableArea.cpp
+   ${CMAKE_SOURCE_DIR}/../../../source/TargetPickerPanel.cpp
    ${CMAKE_SOURCE_DIR}/../../../source/TaskQueue.cpp
    ${CMAKE_SOURCE_DIR}/../../../source/test/Test.cpp
    ${CMAKE_SOURCE_DIR}/../../../source/test/TestContext.cpp

@@ -87,6 +87,8 @@ public:
 	bool IsPaused() const;
 	// t7: the fleet commands that are currently on, as of the last step.
 	const Command &ActiveFleetOrders() const { return activeFleetOrders; }
+	// t7: every ship in play, for the target picker.
+	const std::list<std::shared_ptr<Ship>> &Ships() const { return ships; }
 
 	// Give a command on behalf of the player, used for integration tests.
 	void GiveCommand(const Command &command);

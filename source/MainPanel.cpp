@@ -19,6 +19,8 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Command.h"
 #include "CrashState.h"
 #include "RadialSelectionPanel.h"
+#include "TargetPickerPanel.h"
+#include "Color.h"
 #include "Weapon.h"
 #include "shader/RingShader.h"
 #include "comparators/ByGivenOrder.h"
@@ -80,6 +82,29 @@ void MainPanel::Step()
 	// Depending on what UI element is on top, the game is "paused." This
 	// checks only already-drawn panels.
 	bool isActive = GetUI().IsTop(this);
+
+	// t7: the boarding light was tapped: target and board the nearest disabled ship.
+	if(boardNearestDisabled)
+	{
+		boardNearestDisabled = false;
+		const shared_ptr<Ship> ship = nearestDisabled.lock();
+		if(ship && player.Flagship() && ship->IsTargetable())
+		{
+			player.Flagship()->SetTargetShip(ship);
+			player.SelectEscort(ship->IsYours() ? ship.get() : nullptr, false);
+			UI::PlaySound(UI::UISound::TARGET);
+			Command::InjectOnce(Command::BOARD);
+		}
+	}
+	nearestDisabled = TargetPickerPanel::NearestDisabled(player, engine.Ships());
+
+	// t7: held long enough on the target display: open the target picker.
+	if(targetFingerId >= 0 && isActive && ++targetHoldSteps >= 30)
+	{
+		targetFingerId = -1;
+		GetUI().Push(new TargetPickerPanel(player, engine.Ships()));
+		isActive = false;
+	}
 
 	// If the player is dead, don't show anything.
 	if(player.IsDead())
@@ -176,6 +201,10 @@ void MainPanel::Draw()
 
 	engine.Draw();
 
+	// t7: the blinking boarding light, top left of the target display.
+	if(targetSelectorBox.Width() && !nearestDisabled.expired() && (++boardLightSteps / 30) % 2 == 0)
+		RingShader::Draw(BoardLightCenter(), 8.f, 0.f, Color(.6f, .6f, .6f, 1.f));
+
 	if(isDragging)
 	{
 		if(canDrag)
@@ -197,6 +226,7 @@ void MainPanel::Draw()
 		Information info;
 		const Interface *mapInterface = GameData::Interfaces().Get("map");
 		const Interface *mapButtonUi = GameData::Interfaces().Get("main buttons");
+		targetSelectorBox = mapButtonUi->GetBox("t7 target selector");
 		if(player.MapZoom() >= static_cast<int>(mapInterface->GetValue("max zoom")))
 			info.SetCondition("max zoom");
 		if(player.MapZoom() <= static_cast<int>(mapInterface->GetValue("min zoom")))
@@ -507,6 +537,21 @@ bool MainPanel::FingerDown(int x, int y, int fid)
 
 	// If the gui is active, check for input
 	bool isActive = (GetUI().Top().get() == this);
+	// t7: the boarding light.
+	if (isActive && targetSelectorBox.Width() && !nearestDisabled.expired()
+			&& Point(x, y).Distance(BoardLightCenter()) <= 26.)
+	{
+		boardNearestDisabled = true;
+		return true;
+	}
+	// t7: the target display; FingerUp or Step decides between a tap and a long press.
+	if (isActive && targetSelectorBox.Width()
+			&& Point(x, y).Distance(targetSelectorBox.Center()) <= .5 * targetSelectorBox.Width())
+	{
+		targetFingerId = fid;
+		targetHoldSteps = 0;
+		return true;
+	}
 	if (isActive)
 	{
 		// Check for zoom events
@@ -522,10 +567,19 @@ bool MainPanel::FingerDown(int x, int y, int fid)
 
 
 
+Point MainPanel::BoardLightCenter() const
+{
+	return targetSelectorBox.TopLeft() + Point(14., 14.);
+}
+
+
+
 bool MainPanel::FingerMove(int x, int y, int fid)
 {
 	if (!canClick)
 		return false;
+	if (fid == targetFingerId)
+		return true;
 
 	if(zoomGesture.FingerMove(Point(x, y), fid))
 	{
@@ -540,6 +594,12 @@ bool MainPanel::FingerMove(int x, int y, int fid)
 
 bool MainPanel::FingerUp(int x, int y, int fid)
 {
+	if (fid == targetFingerId)
+	{
+		targetFingerId = -1;
+		Command::InjectOnce(Command::TARGET);
+		return true;
+	}
 	if(zoomGesture.FingerUp(Point(x, y), fid))
 	{
 		return true;

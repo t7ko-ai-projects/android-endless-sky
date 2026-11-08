@@ -41,6 +41,12 @@ Each fork feature gets one step: one action and one thing to look at.
 14. **Fleet toggles** ([spec](fleet-toggle-display.md)). With escorts, open the fleet command
    menu and pick Gather. Open it again: Gather has a bright ring and reads "(on)". Pick it
    again and reopen: the ring is gone. With a cloaking device, turn it on: its icon is red.
+15. **Target picker** ([spec](target-picker.md)). In a busy system, tap the target display:
+   the next ship is targeted. Hold it: a grid of hostile ships with distances opens; turn on
+   My fleet and Friendly and more appear. Tap one: it becomes the target. Reopen and hold a
+   disabled ship: your flagship goes to board it. Tap a card's top-right cross: it goes;
+   top-left cross: all of that model go; turn on Hidden: they come back, dimmed. Disable an
+   enemy: a gray light blinks top left of the target display; tap it and you board it.
 
 ## Adding a feature
 

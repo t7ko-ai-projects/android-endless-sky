@@ -17,6 +17,9 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Panel.h"
 
+#include "Rectangle.h"
+#include <memory>
+
 #include "Command.h"
 #include "Engine.h"
 #include "ZoomGesture.h"
@@ -94,6 +97,16 @@ private:
 	bool hasShift = false;
 	bool hasControl = false;
 	bool canClick = false;
+	// t7: a tap on the target display selects the next ship; a long press opens the picker.
+	Rectangle targetSelectorBox;
+	int targetFingerId = -1;
+	int targetHoldSteps = 0;
+	// t7: a blinking light on the target display while a disabled ship is listed in the
+	// target picker; tapping it targets and boards the nearest one.
+	std::weak_ptr<Ship> nearestDisabled;
+	bool boardNearestDisabled = false;
+	int boardLightSteps = 0;
+	Point BoardLightCenter() const;
 	bool canDrag = false;
 
 	// track zoom gestures

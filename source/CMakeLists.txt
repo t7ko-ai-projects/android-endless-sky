@@ -361,7 +361,9 @@ target_sources(EndlessSkyLib PRIVATE
 	SystemEntry.h
 	TableArea.cpp
 	TableArea.h
+	TargetPickerPanel.cpp
 	TaskQueue.cpp
+	TargetPickerPanel.h
 	TaskQueue.h
 	TextArea.cpp
 	TextArea.h
