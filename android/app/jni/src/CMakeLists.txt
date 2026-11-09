@@ -75,6 +75,13 @@ execute_process(COMMAND git describe --tags
 set(ENDLESS_SKY_VERSION "${version}-${mobile_version}")
 add_definitions(-DENDLESS_SKY_VERSION="${ENDLESS_SKY_VERSION}")
 
+# t7: a one-line description of the build, shown above the version on the main menu. The
+# build script passes it in T7_BUILD_NOTE; it goes in a generated header so that only the
+# main menu is recompiled when it changes.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/t7/T7BuildNote.h.new" "#define T7_BUILD_NOTE \"$ENV{T7_BUILD_NOTE}\"\n")
+file(COPY_FILE "${CMAKE_CURRENT_BINARY_DIR}/t7/T7BuildNote.h.new" "${CMAKE_CURRENT_BINARY_DIR}/t7/T7BuildNote.h" ONLY_IF_DIFFERENT)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/t7")
+
 # This forces vanilla file api
 add_definitions(-DUSE_FILE32API=1)
 

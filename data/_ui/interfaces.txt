@@ -348,6 +348,37 @@ interface "menu background"
 		align right
 		color medium
 		size 18
+	# t7: a one-line description of this build, above the version.
+	string "t7 build note"
+		center -209 -40
+		dimensions 400 30
+		align right
+		color black
+		size 18
+	string "t7 build note"
+		center -211 -40
+		dimensions 400 30
+		align right
+		color black
+		size 18
+	string "t7 build note"
+		center -209 -42
+		dimensions 400 30
+		align right
+		color black
+		size 18
+	string "t7 build note"
+		center -211 -42
+		dimensions 400 30
+		align right
+		color black
+		size 18
+	string "t7 build note"
+		center -210 -41
+		dimensions 400 30
+		align right
+		color medium
+		size 18
 	# should make this a button, but want to support double-click
 	box "version box"
 		center -160 -15

@@ -22,3 +22,4 @@ build after every rebase onto an upstream release.
 | Map: dot on systems with a landable planet | [landable-dot.md](landable-dot.md) | `t7: feat` commit |
 | Fleet command menu: show toggles that are on | [fleet-toggle-display.md](fleet-toggle-display.md) | `t7: feat` commit |
 | Target picker on long press | [target-picker.md](target-picker.md) | `t7: feat` commit |
+| Main menu: build note | [build-note.md](build-note.md) | `t7: feat` commit |
