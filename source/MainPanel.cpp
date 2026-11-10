@@ -569,7 +569,7 @@ bool MainPanel::FingerDown(int x, int y, int fid)
 
 Point MainPanel::BoardLightCenter() const
 {
-	return targetSelectorBox.TopLeft() + Point(14., 14.);
+	return targetSelectorBox.TopLeft() + Point(14., 6.);
 }
 
 

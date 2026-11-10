@@ -40,6 +40,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "image/SpriteSet.h"
 #include "shader/SpriteShader.h"
 #include "System.h"
+#include "TargetPickerPanel.h"
 #include "TextArea.h"
 #include "UI.h"
 
@@ -269,7 +270,12 @@ void BoardingPanel::Draw()
 // Handle key presses or button clicks that were mapped to key presses.
 bool BoardingPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &command, bool isNewPress)
 {
-	if((key == 'd' || key == 'x' || key == SDLK_ESCAPE || key == SDLK_AC_BACK || (key == 'w' && (mod & (KMOD_CTRL | KMOD_GUI)))) && CanExit())
+	// t7: "Done and hide" (h) and "Done and hide all" (l) also hide this ship, or its whole
+	// model, in the target picker.
+	if((key == 'h' || key == 'l') && CanExit() && !playerDied)
+		TargetPickerPanel::Hide(player, victim, key == 'l');
+	if((key == 'd' || key == 'x' || key == 'h' || key == 'l' || key == SDLK_ESCAPE || key == SDLK_AC_BACK
+			|| (key == 'w' && (mod & (KMOD_CTRL | KMOD_GUI)))) && CanExit())
 	{
 		// When closing the panel, mark the player dead if their ship was captured.
 		if(playerDied)

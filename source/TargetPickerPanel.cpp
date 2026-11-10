@@ -188,6 +188,19 @@ shared_ptr<Ship> TargetPickerPanel::NearestDisabled(const PlayerInfo &player, co
 
 
 
+void TargetPickerPanel::Hide(const PlayerInfo &player, const shared_ptr<Ship> &ship, bool allOfModel)
+{
+	if(!ship || !player.Flagship())
+		return;
+	ForgetHiddenIfMoved(*player.Flagship());
+	if(allOfModel)
+		hiddenModels.insert(ship->TrueModelName());
+	else if(!IsHiddenShip(ship.get()))
+		hiddenShips.push_back(ship);
+}
+
+
+
 void TargetPickerPanel::Step()
 {
 	// A long press on a ship targets and boards it.

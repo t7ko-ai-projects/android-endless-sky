@@ -46,7 +46,8 @@ Each fork feature gets one step: one action and one thing to look at.
    My fleet and Friendly and more appear. Tap one: it becomes the target. Reopen and hold a
    disabled ship: your flagship goes to board it. Tap a card's top-right cross: it goes;
    top-left cross: all of that model go; turn on Hidden: they come back, dimmed. Disable an
-   enemy: a gray light blinks top left of the target display; tap it and you board it.
+   enemy: a gray light blinks top left of the target display; tap it and you board it. On
+   the boarding screen, tap Done and hide: the light goes out and the ship is gone from the grid.
 16. **Build note** ([spec](build-note.md)). On the main menu, above the version, a short
    description of the build and its date.
 

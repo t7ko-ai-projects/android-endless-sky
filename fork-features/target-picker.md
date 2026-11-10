@@ -21,7 +21,10 @@
 
 - **Boarding light.** While the grid would list a disabled ship (with the toggles as they
   are, and not hidden), a gray light blinks at the top left of the target display. Tapping
-  it targets the nearest such ship and starts boarding it.
+  it targets the nearest such ship and starts boarding it. The light sits just above the
+  top-left corner of the display, so that it is not hit instead of the display.
+- **Boarding screen.** A second row of buttons: **Done and hide** closes the screen and hides
+  that ship in the grid; **Done and hide all** hides every ship of its model.
 
 ## Requirements
 
@@ -33,7 +36,7 @@
 ## Decisions
 
 - **Fork-only.** Code: `TargetPickerPanel` (new), `MainPanel` (tap versus long press),
-  `Engine::Ships`, and `data/_ui/interfaces.txt`, where the "Select next ship" button over
+  `Engine::Ships`, `BoardingPanel` (the hide buttons), and `data/_ui/interfaces.txt`, where the "Select next ship" button over
   the target display becomes a box so that `MainPanel` can tell a tap from a long press
   (a button fires on touch down).
 - Before this, a long press did nothing more than a tap.

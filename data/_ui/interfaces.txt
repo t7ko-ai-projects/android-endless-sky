@@ -2309,6 +2309,13 @@ interface "boarding"
 	button d "_Done"
 		center -155 115
 		dimensions 70 30
+	# t7: done, and hide this ship (or all of its model) in the target picker.
+	button h "Done and _hide"
+		center -235 155
+		dimensions 140 30
+	button l "Done and hide a_ll"
+		center -80 155
+		dimensions 150 30
 	
 	active if "can capture"
 	button c "Attempt _Capture"

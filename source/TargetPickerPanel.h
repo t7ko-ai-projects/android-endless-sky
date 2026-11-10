@@ -39,6 +39,8 @@ public:
 	// applied), for the boarding light on the target display. Null if there is none.
 	static std::shared_ptr<Ship> NearestDisabled(const PlayerInfo &player,
 		const std::list<std::shared_ptr<Ship>> &ships);
+	// t7: hide a ship, or every ship of its model, as the picker's crosses do.
+	static void Hide(const PlayerInfo &player, const std::shared_ptr<Ship> &ship, bool allOfModel);
 
 	virtual void Step() override;
 	virtual void Draw() override;
