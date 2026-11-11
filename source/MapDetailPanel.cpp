@@ -403,6 +403,26 @@ bool MapDetailPanel::KeyDown(SDL_Keycode key, Uint16 mod, const Command &command
 
 
 
+// t7: target this planet, close the map and start landing. False if the flagship is landed
+// or the planet is not one it can land on in its current system.
+bool MapDetailPanel::LandOn(const Planet *planet)
+{
+	Ship *flagship = player.Flagship();
+	if(!planet || !flagship || player.GetPlanet() || !flagship->GetSystem())
+		return false;
+	for(const StellarObject &object : flagship->GetSystem()->Objects())
+		if(object.GetPlanet() == planet && object.HasSprite() && planet->IsAccessible(flagship))
+		{
+			flagship->SetTargetStellar(&object);
+			GetUI().Pop(this);
+			Command::InjectOnce(Command::LAND, true);
+			return true;
+		}
+	return false;
+}
+
+
+
 bool MapDetailPanel::Click(int x, int y, MouseButton button, int clicks)
 {
 	if(scroll.Scrollable() && scrollbar.SyncClick(scroll, x, y, button, clicks))
@@ -485,6 +505,9 @@ bool MapDetailPanel::Click(int x, int y, MouseButton button, int clicks)
 				selectedPlanet = card.GetPlanet();
 				if(selectedPlanet && player.Flagship())
 					player.SetTravelDestination(selectedPlanet);
+				// t7: a double tap on a planet in your system closes the map and lands there.
+				if(clickAction == MapPlanetCard::ClickAction::SELECTED && clicks > 1 && LandOn(selectedPlanet))
+					return true;
 				if(clickAction != MapPlanetCard::ClickAction::SELECTED)
 					SetCommodity(static_cast<int>(clickAction));
 			}

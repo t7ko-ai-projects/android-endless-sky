@@ -50,6 +50,8 @@ Each fork feature gets one step: one action and one thing to look at.
    the boarding screen, tap Done and hide: the light goes out and the ship is gone from the grid.
 16. **Build note** ([spec](build-note.md)). On the main menu, above the version, a short
    description of the build and its date.
+17. **Double-tap to land** ([spec](map-double-tap-land.md)). In flight, open the map and
+   double-tap a planet card of this system: the map closes and your ship lands there.
 
 ## Adding a feature
 

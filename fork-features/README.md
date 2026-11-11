@@ -23,3 +23,4 @@ build after every rebase onto an upstream release.
 | Fleet command menu: show toggles that are on | [fleet-toggle-display.md](fleet-toggle-display.md) | `t7: feat` commit |
 | Target picker on long press | [target-picker.md](target-picker.md) | `t7: feat` commit |
 | Main menu: build note | [build-note.md](build-note.md) | `t7: feat` commit |
+| Map: double-tap a planet to land | [map-double-tap-land.md](map-double-tap-land.md) | `t7: feat` commit |

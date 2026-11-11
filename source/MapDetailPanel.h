@@ -61,6 +61,8 @@ protected:
 	virtual bool KeyDown(SDL_Keycode key, Uint16 mod, const Command &command, bool isNewPress) override;
 	// Handle single & double-clicks on commodities, planet information, or objects in the "orbits" display.
 	virtual bool Click(int x, int y, MouseButton button, int clicks) override;
+	// t7: land on a planet double-tapped in the planet cards.
+	bool LandOn(const Planet *planet);
 
 	virtual void Resize() override;
 
